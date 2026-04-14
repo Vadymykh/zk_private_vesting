@@ -1,0 +1,33 @@
+{
+  "name": "test_zk_proof",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build:multiplier2": "tsx scripts/build/buildMultiplier2Circle.ts",
+    "test:multiplier2": "npm run build:multiplier2 && npx hardhat test test/Multiplier2Verifier.ts",
+    "build:vesting": "tsx scripts/build/buildVestingCircle.ts",
+    "test:vesting": "npx hardhat test test/Vesting.ts",
+    "test_and_build:vesting": "npm run build:vesting && npm run test:vesting"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^3.0.4",
+    "@nomicfoundation/hardhat-toolbox-viem": "^5.0.3",
+    "@openzeppelin/contracts": "^5.6.1",
+    "@types/chai": "^5.2.3",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/circomlibjs": "^0.1.6",
+    "@types/node": "^22.19.17",
+    "@types/snarkjs": "^0.7.9",
+    "chai-as-promised": "^8.0.2",
+    "dotenv": "^17.4.2",
+    "hardhat": "^3.3.0",
+    "snarkjs": "^0.7.6",
+    "typescript": "~5.8.0",
+    "viem": "^2.47.12"
+  },
+  "dependencies": {
+    "chai": "^6.2.2",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7"
+  }
+}
