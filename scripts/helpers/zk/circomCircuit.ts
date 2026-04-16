@@ -21,7 +21,7 @@ export class CircomCircuit {
   // build dir
   buildDir: string;
   // random entropy value
-  entropy: string;
+  entropy?: string;
 
   filenames: {
     circom: string;
@@ -60,7 +60,7 @@ export class CircomCircuit {
     this.dir = dir;
     this.buildDir = buildDir;
     this.localDependencies = localDependencies.map(dep => `circuits/${dep}`);
-    this.entropy = entropy || _name;
+    this.entropy = entropy;
 
     this.filenames = {
       circom: `circuits/${name}.circom`,
@@ -118,7 +118,7 @@ export class CircomCircuit {
     if (!existsSync(this.filenames.ptauFinal)) {
       console.log("Setting up ptau files");
       run(`snarkjs powersoftau new bn128 ${ptauPower} ${this.filenames.ptau0} -v`);
-      run(`snarkjs powersoftau contribute ${this.filenames.ptau0} ${this.filenames.ptau1} --name="First contribution" -e=${this.entropy} -v`);
+      run(`snarkjs powersoftau contribute ${this.filenames.ptau0} ${this.filenames.ptau1} --name="First contribution" -e=${this.entropy || generateEntropy()} -v`);
       run(`npx snarkjs powersoftau prepare phase2 ${this.filenames.ptau1} ${this.filenames.ptauFinal} -v`);
     } else {
       console.log("Ptau file exist");
@@ -126,7 +126,7 @@ export class CircomCircuit {
 
     // Finalize zkey
     run(`npx snarkjs groth16 setup ${this.filenames.r1cs} ${this.filenames.ptauFinal} ${this.filenames.zkey0}`);
-    run(`npx snarkjs zkey contribute ${this.filenames.zkey0} ${this.filenames.zkeyFinal} --name="1st Contributor Name" -e=${this.entropy} -v`);
+    run(`npx snarkjs zkey contribute ${this.filenames.zkey0} ${this.filenames.zkeyFinal} --name="1st Contributor Name" -e=${this.entropy || generateEntropy()} -v`);
 
     // Export verifier smart contract
     if (smartContractPath && smartContractName) {
@@ -270,6 +270,12 @@ export class CircomCircuit {
       });
     });
   }
+}
+
+function generateEntropy(bytes = 32) {
+  const array = new Uint8Array(bytes);
+  crypto.getRandomValues(array);
+  return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function run(
