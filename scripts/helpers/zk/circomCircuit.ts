@@ -1,15 +1,16 @@
 import { CircuitSignals } from "snarkjs";
 import path from "path";
 import { execSync, spawn } from "child_process";
-import { mkdirSync, existsSync, readFileSync, writeFileSync, statSync, copyFileSync } from "fs";
+import { mkdirSync, existsSync, readFileSync, writeFileSync, copyFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { StdioOptions } from "node:child_process";
 import { deepMapToBigInt } from "./parsing.js";
 import { CircuitProof } from "./types.js";
+import * as crypto from "node:crypto";
 
 type Metadata = {
-  circomLastModifiedTs: number;
-  dependenciesLastModifiedTs: { [dep: string]: number };
+  mainCircomFileHash: string;
+  dependencyFileHash: { [dep: string]: string };
 }
 
 export class CircomCircuit {
@@ -154,20 +155,20 @@ export class CircomCircuit {
     } = { requireRebuild: false };
 
     if (existsSync(this.filenames.circom)) {
-      const mainCircomFileStats = statSync(this.filenames.circom);
-      const circomLastModifiedTs = Number(mainCircomFileStats.mtime);
+      const mainCircomFile = readFileSync(this.filenames.circom, "utf8");
+      const mainCircomFileHash = crypto.createHash("sha256").update(mainCircomFile).digest("hex");
       let prevMetadata: Metadata;
       if (existsSync(this.filenames.metadata)) {
         prevMetadata = JSON.parse(readFileSync(this.filenames.metadata, "utf8"));
       } else {
         prevMetadata = {
-          circomLastModifiedTs: 0,
-          dependenciesLastModifiedTs: {},
+          mainCircomFileHash: "",
+          dependencyFileHash: {},
         };
         res.requireRebuild = true;
         res.reason = "No metadata file found";
       }
-      if (prevMetadata.circomLastModifiedTs !== circomLastModifiedTs) {
+      if (prevMetadata.mainCircomFileHash !== mainCircomFileHash) {
         res.requireRebuild = true;
         if (!res.reason) res.reason = "Last modified ts doesn't match";
       }
@@ -176,22 +177,22 @@ export class CircomCircuit {
         if (!res.reason) res.reason = "zkeyFinal not found";
       }
       const metadata: Metadata = {
-        circomLastModifiedTs,
-        dependenciesLastModifiedTs: {},
+        mainCircomFileHash,
+        dependencyFileHash: {},
       };
       for (const localDependency of this.localDependencies) {
-        const prevTs = prevMetadata?.dependenciesLastModifiedTs?.[localDependency];
-        if (prevTs === undefined) {
+        const prevHash = prevMetadata?.dependencyFileHash?.[localDependency];
+        if (prevHash === undefined) {
           res.requireRebuild = true;
           if (!res.reason) res.reason = `Previous last modified ts for ${localDependency} dependency not found`;
         }
-        const depFileStats = statSync(localDependency);
-        const lastModifiedTs = Number(depFileStats.mtime);
-        if (lastModifiedTs != prevTs) {
+        const dependencyFile = readFileSync(localDependency, "utf8");
+        const dependencyFileHash = crypto.createHash("sha256").update(dependencyFile).digest("hex");
+        if (dependencyFileHash != prevHash) {
           res.requireRebuild = true;
           if (!res.reason) res.reason = `${localDependency} modified`;
         }
-        metadata.dependenciesLastModifiedTs[localDependency] = lastModifiedTs;
+        metadata.dependencyFileHash[localDependency] = dependencyFileHash;
       }
       writeFileSync(
         this.filenames.metadata,
