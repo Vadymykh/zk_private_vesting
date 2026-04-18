@@ -2,6 +2,7 @@ pragma circom 2.2.3;
 
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/poseidon.circom";
+include "circomlib/circuits/bitify.circom";
 include "./utils/merkleTreePoseidon.circom";
 
 // Creator prooves he has all required data for merkle tree
@@ -29,6 +30,8 @@ template VestingMerkleTree(depth) {
         hashers[i].inputs[2] <== cliffDurations[i];
 
         tree.leaves[i] <== hashers[i].out;
+        // Checking that amount is withing uint128, to make sure there will be no wraparound during adding
+        _ <== Num2Bits(128)(amounts[i]);
         amountsAccumulator[i + 1] <== amountsAccumulator[i] + amounts[i];
     }
     totalAmount <== amountsAccumulator[1 << depth];

@@ -46,10 +46,10 @@ Hidden:
 - full vesting table
 
 # Deployed contracts to BSC Mainnet
-- VestingMerkleTreeVerifier - https://bscscan.com/address/0xf1ca52f979d0dedbe208c96534f74b93ec1b2404#code
-- VestingWithdrawVerifier - https://bscscan.com/address/0xd8b605db0e43025380f3d3e7c8dca4162a15cab9#code
-- PrivateVestingFactory - https://bscscan.com/address/0x4bea54d31030c65b198786e17f6ceba17800daaa#code
-- PrivateVesting - https://bscscan.com/address/0xb37B453595A41D60206FAA530261a9542ec4110B#code
+- VestingMerkleTreeVerifier - https://bscscan.com/address/0x533841c0d97b579dada59fd005bbc88031739c4d#code
+- VestingWithdrawVerifier - https://bscscan.com/address/0x8e441500f1c9efea010b683679e16a4b8e6f6cc7#code
+- PrivateVestingFactory - https://bscscan.com/address/0xff1d7fc1f6e4bc33ec15e551cd15823aaf10e23c#code
+- PrivateVesting - https://bscscan.com/address/0x3bfc8a2dec8bdd95681ff95415a2806912d82d83#code
 
 ### Example withdrawal script
 ```

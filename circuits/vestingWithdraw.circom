@@ -1,6 +1,7 @@
 pragma circom 2.2.3;
 
 include "circomlib/circuits/comparators.circom";
+include "circomlib/circuits/bitify.circom";
 include "./utils/merkleTreePoseidon.circom";
 
 // User prooves he has right to withdraw tokens
@@ -41,6 +42,10 @@ template VestingWithdraw(depth) {
 
     // -------- AMOUNT CHECK --------
     signal sum;
+    // Checking that amount is withing uint128, to make sure there will be no wraparound during adding
+    _ <== Num2Bits(128)(amount);
+    // No need to check `withdrawnAmount` - it will be checked on smart contract
+    // No need to check `totalAmount` - passing wrong `totalAmount` will result in invalid merkle tree root
     sum <== amount + withdrawnAmount;
 
     component leq = LessEqThan(252);

@@ -12,7 +12,7 @@ async function main() {
 
   console.log("Connecting to contract");
   const Vesting = await viem.getContractAt(
-    "PrivateVesting", "0xb37B453595A41D60206FAA530261a9542ec4110B"
+    "PrivateVesting", "0x3bfc8a2dec8bdd95681ff95415a2806912d82d83"
   );
 
   console.log("Building merkle tree");

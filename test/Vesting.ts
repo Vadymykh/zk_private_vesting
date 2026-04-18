@@ -158,6 +158,14 @@ describe("Vesting", async function () {
           { timePassed: "3600" }
         )).to.be.rejectedWith("Error in template VestingWithdraw");
       });
+      it("should revert creating withdrawal proof with amount > uint128.max", async function () {
+        await expect(getWithdrawProof(
+          context,
+          user1.account.address,
+          (2n ** 128n).toString(),
+          { timePassed: "3600" }
+        )).to.be.rejectedWith("Error in template Num2Bits");
+      });
     });
   });
   describe("Withdrawals", async function () {
